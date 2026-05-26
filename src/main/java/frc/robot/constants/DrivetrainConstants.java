@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Value;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -21,6 +22,7 @@ import com.pathplanner.lib.config.RobotConfig;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.CurrentUnit;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -30,6 +32,8 @@ import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Velocity;
+
 import frc.minolib.swerve.CTRESwerveDrivetrainConstants;
 import frc.minolib.swerve.SwerveModuleType;
 import frc.robot.Robot;
@@ -53,8 +57,12 @@ public class DrivetrainConstants {
 
     public static final boolean kDriveInverted = false;
     public static final double kDriveReduction = kSwerveModuleType.getDriveReduction();
-    public static final Current kDriveSupplyCurrentLimit = Amps.of(70);
     public static final DCMotor kDriveSimulatedGearbox = DCMotor.getKrakenX60Foc(1);
+
+    public static final Current kDriveSupplyCurrentLimit = Amps.of(60);
+    public static final Current kDriveMinimumSupplyCurrentLimit = Amps.of(50);
+    public static final Current kDriveMaximumSupplyCurrentLimit = Amps.of(5);
+    public static final Velocity<CurrentUnit> kDriveProbeRateBrownout = Amps.of(50).per(Second);
 
     public static final double steerkP = 600.0;
     public static final double steerkI = 0.0;
