@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 
 import frc.minolib.advantagekit.LoggedTracer;
 import frc.minolib.advantagekit.LoggedTunableNumber;
+import frc.minolib.energy.EnergyManagement;
 import frc.minolib.math.EqualsUtility;
 import frc.robot.Robot;
 import frc.robot.constants.GlobalConstants;
@@ -68,16 +69,12 @@ public class Slam {
     private final SlamIO io;
     private final SlamIOInputsAutoLogged inputs = new SlamIOInputsAutoLogged();
 
-    // Connected debouncer
     private final Debouncer motorConnectedDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
     private Debouncer homingDebouncer = new Debouncer(kHomingTimeoutSeconds.get(), Debouncer.DebounceType.kRising);
     private Debouncer readyDebouncer = new Debouncer(kReadyDebounceSeconds.get(), Debouncer.DebounceType.kFalling);
 
     private final Alert motorDisconnectedAlert = new Alert("Slam motor disconnected!", Alert.AlertType.kError);
     private final Alert motorTemperatureAlert = new Alert("Slam motor is overheating!", Alert.AlertType.kWarning);
-
-    @AutoLogOutput(key = "Intake/Slam/CoastOverride") private BooleanSupplier coastOverride = () -> false;
-    @AutoLogOutput(key = "Intake/Slam/DisabledOverride") private BooleanSupplier disabledOverride = () -> false;
 
     @AutoLogOutput(key = "Intake/Slam/BrakeModeEnabled") 
     private boolean brakeModeEnabled = false;
@@ -100,18 +97,15 @@ public class Slam {
         motorDisconnectedAlert.set(!motorConnectedDebouncer.calculate(inputs.isMotorConnected) && !Robot.isJITing());
         motorTemperatureAlert.set(inputs.temperatureFault);
 
-        Robot.batteryLogger.reportCurrentUsage("Slam", inputs.isMotorConnected ? inputs.supplyCurrentAmperes : 0.0);
+        EnergyManagement.getInstance().reportCurrentUsage("Slam", false, inputs.isMotorConnected ? inputs.supplyCurrentAmperes : 0.0);
 
         // Update tunable numbers
         if (kP.hasChanged(hashCode()) || kD.hasChanged(hashCode()) || kS.hasChanged(hashCode()) || kV.hasChanged(hashCode()) || kG.hasChanged(hashCode()) || kA.hasChanged(hashCode())) {
             io.setPID(kP.get(), 0.0, kD.get(), kS.get(), kV.get(), kG.get(), kA.get());
         }
 
-        if (kReadyDebounceSeconds.hasChanged(hashCode())) {
+        if (kReadyDebounceSeconds.hasChanged(hashCode()) || kHomingTimeoutSeconds.hasChanged(hashCode())) {
             readyDebouncer.setDebounceTime(kReadyDebounceSeconds.get());
-        }
-
-        if (kHomingTimeoutSeconds.hasChanged(hashCode())) {
             homingDebouncer.setDebounceTime(kHomingTimeoutSeconds.get());
         }
 
@@ -119,17 +113,7 @@ public class Slam {
             CommandScheduler.getInstance().schedule(zeroCommand);
         }
 
-        setBrakeMode(!coastOverride.getAsBoolean()); 
-
-        if (!Double.isNaN(targetAngleRadians) && zeroed) {
-            double restrictedSetpoint = MathUtil.clamp(
-                targetAngleRadians,
-                Units.degreesToRadians(kMinimumAngleDegrees.get()),
-                Units.degreesToRadians(kMaximumAngleDegrees.get())
-            );
-
-            io.setPosition(restrictedSetpoint);
-        }
+        if(targetAngleRadians != Double.NaN) io.setPosition(targetAngleRadians);
 
         Logger.recordOutput("Intake/Slam/Zeroed", zeroed);
         Logger.recordOutput("Intake/Slam/TargetAngleDegrees", Units.radiansToDegrees(targetAngleRadians));
@@ -147,12 +131,7 @@ public class Slam {
         targetAngleRadians = Units.degreesToRadians(degrees);
     }
 
-    public void setOverrides(BooleanSupplier coastOverride, BooleanSupplier disabledOverride) {
-        this.coastOverride = coastOverride;
-        this.disabledOverride = disabledOverride;
-    }
-
-    private void setBrakeMode(boolean enabled) {
+    public void setBrakeMode(boolean enabled) {
         if (brakeModeEnabled == enabled) return;
         brakeModeEnabled = enabled;
         io.setBrakeMode(brakeModeEnabled);
