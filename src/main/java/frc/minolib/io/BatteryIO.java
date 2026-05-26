@@ -7,5 +7,6 @@ public interface BatteryIO {
     public static class BatteryIOInputs {
         public double batteryVoltage = 12.0;
         public double rioCurrent = 0.0;
+        public boolean brownedOut = false;
     }
 }
