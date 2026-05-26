@@ -33,12 +33,15 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import frc.minolib.advantagekit.LocalADStarAK;
 import frc.minolib.advantagekit.LoggedTracer;
+import frc.minolib.energy.BatteryLogger;
 import frc.minolib.hardware.MinoCANBus;
 import frc.minolib.io.BatteryIOInputsAutoLogged;
 import frc.minolib.phoenix.PhoenixUtility;
-import frc.minolib.utilities.BatteryLogger;
+import frc.minolib.utilities.FullSubsystem;
+import frc.minolib.utilities.VirtualSubsystem;
 import frc.robot.constants.BuildConstants;
 import frc.robot.constants.GlobalConstants;
+import frc.robot.utilities.HubShiftUtility;
 
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
@@ -54,15 +57,12 @@ public class Robot extends LoggedRobot {
 
   private final Alert canErrorAlert = new Alert("CAN errors detected, robot may not be controllable.", AlertType.kError);
   private final Alert canivoreErrorAlert = new Alert("CANivore errors detected, robot may not be controllable.", AlertType.kError);
-  private final Alert lowBatteryAlert = new Alert("Battery voltage is very low, consider turning off the robot or replacing the battery.", AlertType.kWarning);
   private final Alert jitAlert = new Alert("Please wait to enable, JITing in progress.", AlertType.kInfo);
-  private final Alert logReceiverQueueAlert = new Alert("Logging queue exceeded capacity, data will NOT be logged.", AlertType.kError);
   private final Alert noAutoSelectedAlert = new Alert("No auto selected: please select an auto", AlertType.kWarning);
 
-  public static final BatteryLogger batteryLogger = new BatteryLogger();
-  private final BatteryIOInputsAutoLogged batteryInputs = new BatteryIOInputsAutoLogged();
-
   public Robot() {
+    super(GlobalConstants.kLoopPeriodSeconds);
+
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -144,22 +144,31 @@ public class Robot extends LoggedRobot {
     PhoenixUtility.refreshAll();
     LoggedTracer.record("PhoenixRefresh");
 
-    batteryInputs.batteryVoltage = RobotController.getBatteryVoltage();
-    batteryInputs.rioCurrent = RobotController.getInputCurrent();
-    Logger.processInputs("BatteryLogger", batteryInputs);
+    VirtualSubsystem.runAllPeriodic();
+    CommandScheduler.getInstance().run();
+    LoggedTracer.record("Robot/Commands");
 
-    batteryLogger.setBatteryVoltage(batteryInputs.batteryVoltage);
-    batteryLogger.setRioCurrent(batteryInputs.rioCurrent);
-    LoggedTracer.record("BatteryLogger/Periodic");
+    VirtualSubsystem.runAllPeriodicAfterScheduler();
+    FullSubsystem.runAllPeriodicAfterScheduler();
+    LoggedTracer.record("Robot/AfterScheduler");
 
-    if (RobotController.getBatteryVoltage() <= GlobalConstants.kLowBatteryVoltage && disabledTimer.hasElapsed(GlobalConstants.kLowBatteryDisabledTime)) {
-      lowBatteryAlert.set(true);
+    if (DriverStation.isEnabled()) {
+      disabledTimer.restart();
     }
 
-    CommandScheduler.getInstance().run();
-    LoggedTracer.record("Commands");
+    Logger.recordOutput("Throttled", shouldThrottle());
 
-    logReceiverQueueAlert.set(Logger.getReceiverQueueFault());
+    robotContainer.updateDashboardOutputs();
+    robotContainer.updateOnboardAlerts();
+
+    if (DriverStation.isEnabled()) {
+      disabledTimer.reset();
+    }
+
+    Logger.recordOutput("HubShift/Official", HubShiftUtility.getOfficialShiftInfo());
+    Logger.recordOutput("HubShift/Shifted", HubShiftUtility.getShiftedShiftInfo());
+
+    LoggedTracer.record("Robot/Periodic");
 
     var canStatus = RobotController.getCANStatus();
     Logger.recordOutput("CANStatus/OffCount", canStatus.busOffCount);
@@ -171,10 +180,7 @@ public class Robot extends LoggedRobot {
       canErrorTimer.restart();
     }
 
-    canErrorAlert.set(
-      !canErrorTimer.hasElapsed(GlobalConstants.kCANErrorTimeThreshold) 
-        && canInitialErrorTimer.hasElapsed(GlobalConstants.kCANErrorTimeThreshold)
-    );
+    canErrorAlert.set(!canErrorTimer.hasElapsed(GlobalConstants.kCANErrorTimeThreshold) && canInitialErrorTimer.hasElapsed(GlobalConstants.kCANErrorTimeThreshold));
 
     if (GlobalConstants.getMode() == GlobalConstants.Mode.REAL) {
       var canivoreStatus = this.canivoreBus.getParent().getStatus();
@@ -189,26 +195,20 @@ public class Robot extends LoggedRobot {
         canivoreErrorTimer.restart();
       }
 
-      canivoreErrorAlert.set(
-        !canivoreErrorTimer.hasElapsed(GlobalConstants.kCANivoreTimeThreshold)
-          && canInitialErrorTimer.hasElapsed(GlobalConstants.kCANErrorTimeThreshold)
-      );
+      canivoreErrorAlert.set(!canivoreErrorTimer.hasElapsed(GlobalConstants.kCANivoreTimeThreshold) && canInitialErrorTimer.hasElapsed(GlobalConstants.kCANErrorTimeThreshold));
     }
 
     canivoreBus.updateInputs();
     rioBus.updateInputs();
 
-    if (DriverStation.isEnabled()) {
-      disabledTimer.reset();
-    }
-
-    robotContainer.updateOnboardAlerts();
-    robotContainer.getRobotState().updateLogger();
-
     // JIT alert
     jitAlert.set(isJITing());
-
     LoggedTracer.record("RobotPeriodic");
+  }
+
+  /** Returns whether performance should be throttled to conserve power. */
+  public boolean shouldThrottle() {
+    return disabledTimer.hasElapsed(5.0);
   }
 
   @Override

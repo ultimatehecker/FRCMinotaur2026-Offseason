@@ -471,7 +471,7 @@ public class RobotContainer {
         );
   }
 
-  public void updateOnboardAlerts() {
+  public void updateDashboardOutputs() {
     SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
 
     SmartDashboard.putString("Shifts/Remaining Shift Time", String.format("%.1f", Math.max(HubShiftUtility.getShiftedShiftInfo().remainingTime(), 0.0)));
@@ -479,6 +479,10 @@ public class RobotContainer {
     SmartDashboard.putString("Shifts/Game State", HubShiftUtility.getShiftedShiftInfo().currentShift().toString());
     SmartDashboard.putBoolean("Shifts/Active First?", DriverStation.getAlliance().orElse(Alliance.Blue) == HubShiftUtility.getFirstActiveAlliance());
 
+    robotState.updateLogger();
+  }
+
+  public void updateOnboardAlerts() {
     driverControllerDisconnected.set(!DriverStation.isJoystickConnected(controlboard.getPrimaryHID().getPort()));
     operatorControllerDisconnected.set(!DriverStation.isJoystickConnected(controlboard.getSecondaryHID().getPort()));
     primaryButtonBoardDisconnected.set(!primaryButtonBoard.isConnected());
