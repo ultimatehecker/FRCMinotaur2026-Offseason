@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.minolib.advantagekit.LoggedTracer;
 import frc.minolib.advantagekit.LoggedTunableNumber;
+import frc.minolib.energy.EnergyManagement;
 import frc.minolib.math.EqualsUtility;
 import frc.robot.Robot;
 import frc.robot.constants.GlobalConstants;
@@ -100,7 +101,7 @@ public class Hood extends SubsystemBase {
         motorDisconnectedAlert.set(!motorConnectedDebouncer.calculate(inputs.isMotorConnected) && !Robot.isJITing());
         motorOverheatingAlert.set(inputs.temperatureFault);
 
-        Robot.batteryLogger.reportCurrentUsage("Hood", inputs.isMotorConnected ? inputs.supplyCurrentAmperes : 0.0);
+        EnergyManagement.getInstance().reportCurrentUsage("Hood", false, inputs.isMotorConnected ? inputs.supplyCurrentAmperes : 0.0);
 
         // Update tunable numbers
         if (kP.hasChanged(hashCode()) || kD.hasChanged(hashCode()) || kS.hasChanged(hashCode()) || kV.hasChanged(hashCode()) || kA.hasChanged(hashCode())) {

@@ -63,7 +63,7 @@ public class SlamIOHardware implements SlamIO {
     private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0.0)
         .withUpdateFreqHz(0.0);
 
-    private final DynamicMotionMagicVoltage positionRequest = new DynamicMotionMagicVoltage(0.0, 0.0, 0.0)
+    private final DynamicMotionMagicVoltage dynamicMotionMagic = new DynamicMotionMagicVoltage(0.0, 0.0, 0.0)
         .withUpdateFreqHz(0.0)
         .withEnableFOC(true);
 
@@ -203,10 +203,11 @@ public class SlamIOHardware implements SlamIO {
     }
 
     @Override
-    public void setPosition(double positionRadians) {
+    public void setPosition(double positionRadians, double velocityRadiansPerSecond) {
         motor.setControl(
-            positionRequest
+            dynamicMotionMagic
                 .withPosition(Units.radiansToRotations(positionRadians))
+                .withVelocity(Units.radiansToRotations(velocityRadiansPerSecond))
                 .withFeedForward(0.0)
         );
     }
