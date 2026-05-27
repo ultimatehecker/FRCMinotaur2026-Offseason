@@ -261,10 +261,10 @@ public class RobotContainer {
     elevator = buildElevator();
     vision = buildVision();
 
-    intake.setBrakeMode(() -> !coastOverride);
     indexer.setBrakeMode(() -> !coastOverride);
     tower.setBrakeMode(() -> !coastOverride);
     flywheel.setBrakeMode(() -> !coastOverride);
+    intake.setOverrides(coast, disable);
     hood.setOverrides(coast, disable);
     elevator.setBrakeMode(() -> !coastOverride);
 
@@ -362,15 +362,15 @@ public class RobotContainer {
     );
 
     new EventTrigger("Deploy and Intake")
-      .onTrue(IntakeFactory.intakeCommandUnblocking(this)
+      .onTrue(IntakeFactory.deployIntakeBlocking(this)
     );
 
     new EventTrigger("Deploy Half and Stop Intaking")
-      .onTrue(IntakeFactory.deployHalfCommand(this)
+      .onTrue(IntakeFactory.wallIntakeBlocking(this)
     );
 
     new EventTrigger("Stow and Stop Intaking")
-      .onTrue(IntakeFactory.stowCommand(this)
+      .onTrue(IntakeFactory.retractIntakeBlocking(this)
     );
   }
 
@@ -393,13 +393,13 @@ public class RobotContainer {
     controlboard
       .deployIntake()
       .whileTrue(
-        IntakeFactory.intakeCommand(this)
+        IntakeFactory.deployIntakeBlocking(this)
       )
-      .onFalse(IntakeFactory.deployHalfCommand(this));
+      .onFalse(IntakeFactory.wallIntakeBlocking(this));
 
     controlboard
       .stowIntake()
-      .whileTrue(IntakeFactory.stowCommand(this));
+      .whileTrue(IntakeFactory.retractIntakeBlocking(this));
 
     controlboard.automaticallyShoot()
       .whileTrue(
@@ -412,19 +412,10 @@ public class RobotContainer {
             Commands.runOnce(
               () -> indexer.setGoal(IndexerGoal.FEED)
             ),
-            IntakeFactory.feedCommand(this),
-            Commands.waitSeconds(0.2),
-            IntakeFactory.stowCommand(this),
-            Commands.waitSeconds(0.2),
-            IntakeFactory.feedCommand(this),
-            Commands.waitSeconds(0.2),
-            IntakeFactory.stowCommand(this),
-            Commands.waitSeconds(0.2),
-            IntakeFactory.feedCommand(this),
-            Commands.waitSeconds(0.2),
-            IntakeFactory.stowCommand(this),
-            Commands.waitSeconds(0.2)
-          ),
+            IntakeFactory.slowRetractIntakeBlocking(this),
+            IntakeFactory.wallIntakeBlocking(this),
+            IntakeFactory.slowRetractIntakeBlocking(this),
+            IntakeFactory.wallIntakeBlocking(this)          ),
           Commands.runEnd(
             () -> flywheel.runVelocity(flywheel.getPreset().getData().getFlywheelSpeedRPM()), 
             () -> flywheel.stop(),
@@ -455,7 +446,7 @@ public class RobotContainer {
               () -> tower.setTowerGoal(TowerGoal.STOP), 
               tower
           ),
-          IntakeFactory.ejectCommand(this)
+          IntakeFactory.exhaustHalfIntakeBlocking(this)
         ));
 
       controlboard
