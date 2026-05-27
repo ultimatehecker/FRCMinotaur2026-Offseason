@@ -117,7 +117,7 @@ public class SlamIOSimulation implements SlamIO {
     }
 
     @Override
-    public void setPosition(double position) {
+    public void setPosition(double positionRadians, double velocityRadiansPerSecond) {
         if (!pivotClosedLoop) {
             pivotControllerNeedsReset = true;
             pivotClosedLoop = true;
@@ -129,13 +129,13 @@ public class SlamIOSimulation implements SlamIO {
 
         double dt = GlobalConstants.kLoopPeriodSeconds;
 
-        double currentVelocity = (position - previousPosition) / dt;
+        double currentVelocity = (positionRadians - previousPosition) / dt;
 
-        previousPosition = position;
+        previousPosition = positionRadians;
         previousVelocity = currentVelocity;
 
-        double ffVoltage = feedforward.calculateWithVelocities(position, currentVelocity, previousVelocity);
-        setVoltage(pivotController.calculate(pivotSimulation.getAngleRads(), position) + ffVoltage);
+        double ffVoltage = feedforward.calculateWithVelocities(positionRadians, currentVelocity, previousVelocity);
+        setVoltage(pivotController.calculate(pivotSimulation.getAngleRads(), positionRadians) + ffVoltage);
     }
 
     @Override

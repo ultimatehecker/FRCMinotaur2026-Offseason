@@ -20,6 +20,7 @@ import frc.minolib.math.EqualsUtility;
 import frc.robot.Robot;
 import frc.robot.constants.GlobalConstants;
 import frc.robot.constants.IntakeConstants;
+import frc.robot.subsystems.intake.IntakeSetpoint;
 
 import static edu.wpi.first.units.Units.Degrees;
 
@@ -81,6 +82,7 @@ public class Slam {
 
     @Getter private boolean zeroed = true;
     private double targetAngleRadians = Double.NaN;
+    private double targetVelocityRadiansPerSecond = IntakeSetpoint.getFastMaxVelocityRadiansPerSecond();
 
     private final Command zeroCommand;
 
@@ -113,7 +115,7 @@ public class Slam {
             CommandScheduler.getInstance().schedule(zeroCommand);
         }
 
-        if(targetAngleRadians != Double.NaN) io.setPosition(targetAngleRadians);
+        if(targetAngleRadians != Double.NaN) io.setPosition(targetAngleRadians, targetVelocityRadiansPerSecond);
 
         Logger.recordOutput("Intake/Slam/Zeroed", zeroed);
         Logger.recordOutput("Intake/Slam/TargetAngleDegrees", Units.radiansToDegrees(targetAngleRadians));
@@ -127,8 +129,15 @@ public class Slam {
         return Units.radiansToDegrees(inputs.positionRadians);
     }
 
-    public void setAngleDegrees(double degrees) {
+    @AutoLogOutput(key = "Intake/Slam/MeasuredVelocityDegreesPerSecond")
+    public double getMeasuredVelocityDegreesPerSecond() {
+        return Units.radiansToDegrees(inputs.velocityRadiansPerSecond);
+    }
+
+
+    public void runSetpoint(double degrees, double degreesPerSecond) {
         targetAngleRadians = Units.degreesToRadians(degrees);
+        targetVelocityRadiansPerSecond = Units.degreesToRadians(degreesPerSecond);
     }
 
     public void setBrakeMode(boolean enabled) {
@@ -139,6 +148,7 @@ public class Slam {
 
     public void stow() {
         targetAngleRadians = Units.degreesToRadians(kMinimumAngleDegrees.get());
+        targetVelocityRadiansPerSecond = IntakeSetpoint.getFastMaxVelocityRadiansPerSecond();
     }
 
     public void stop() {
