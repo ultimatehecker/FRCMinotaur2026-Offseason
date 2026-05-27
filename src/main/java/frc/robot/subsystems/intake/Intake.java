@@ -2,60 +2,28 @@ package frc.robot.subsystems.intake;
 
 import java.util.function.BooleanSupplier;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.minolib.advantagekit.LoggedTracer;
-import frc.minolib.advantagekit.LoggedTunableNumber;
 import frc.robot.subsystems.intake.slam.Slam;
 import frc.robot.subsystems.intake.slam.SlamIO;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 
 import lombok.Getter;
+import lombok.Setter;
 
 public class Intake extends SubsystemBase {
-    private static final LoggedTunableNumber kStowedPosition = new LoggedTunableNumber("Intake/Slam/StowedPosition", 56.9);
-    private static final LoggedTunableNumber kDeployedPosition = new LoggedTunableNumber("Intake/Slam/DeployedPosition", 187.4);
-    private static final LoggedTunableNumber kHalfDeployPosition = new LoggedTunableNumber("Intake/Slam/HalfPosition", 110.0);
-    private static final LoggedTunableNumber kFeedPosition = new LoggedTunableNumber("Intake/Slam/FeedPosition", 140.0);
-
-    private static final LoggedTunableNumber kRetractMaxVelocityRadsPerSecond = new LoggedTunableNumber("Intake/Slam/RetractMaxVelocity", 3.0);
-    private static final LoggedTunableNumber kSlowRetractMaxVelocityRadsPerSecond = new LoggedTunableNumber("Intake/Slam/SlowRetractMaxVelocity", 0.88);
-    private static final LoggedTunableNumber kFastRetractMaxVelocityRadsPerSecond = new LoggedTunableNumber("Intake/Slam/FastRetractMaxVelocity", 1.3);
-
-    private static final LoggedTunableNumber kRollerVoltage = new LoggedTunableNumber("Intake/Roller/IntakeVoltage", 7.0);
-    private static final LoggedTunableNumber kExhaustVoltage = new LoggedTunableNumber("Intake/Roller/ExhaustVoltage", -6.0);
-    private static final LoggedTunableNumber kIdleVoltage = new LoggedTunableNumber("Intake/Roller/IdleVoltage", 4.0);
-
-    public enum IntakeGoal {
-        IDLE,
-        STOW,
-        DEPLOY,
-        DEPLOY_HALF,
-        FEED,
-        INTAKE,
-        EXHAUST
-    }
-
-    public enum IntakeState {
-        IDLE,
-        STOWING,
-        STOWED,
-        DEPLOYING,
-        DEPLOYED,
-        DEPLOYED_HALF,
-        FEED,
-        INTAKING,
-        EXHAUSTING
-    }
-
     private final RollerSystem roller;
     private final Slam slam;
 
-    @Getter private IntakeGoal goal = IntakeGoal.IDLE;
-    @Getter private IntakeState state = IntakeState.IDLE;
+    @AutoLogOutput(key = "Intake/CoastOverride") private BooleanSupplier coastOverride = () -> false;
+    @AutoLogOutput(key = "Intake/DisabledOverride") private BooleanSupplier disabledOverride = () -> false;
+
+    @Getter @Setter private IntakeSetpoint setpoint = IntakeSetpoint.idle();
 
     public Intake(SlamIO slamIO, RollerSystemIO rollerIO) {
         slam = new Slam(slamIO);
@@ -67,85 +35,41 @@ public class Intake extends SubsystemBase {
         slam.periodic();
         roller.periodic();
 
-        state = evaluateState();
-        applyOutputs();
+        setBrakeMode(!coastOverride.getAsBoolean());
+        applySetpoint(setpoint);
 
-        Logger.recordOutput("Intake/Goal", goal.toString());
-        Logger.recordOutput("Intake/State", state.toString());
+        Logger.recordOutput("Intake/Setpoint/CommandedSetpoint", setpoint.toString());
+        Logger.recordOutput("Intake/Setpoint/SlamAngleDegrees", setpoint.slamAngleDegrees());
+        Logger.recordOutput("Intake/Setpoint/SlamVelocityRadiansPerSecond", setpoint.slamVelocityRadiansPerSecond());
+        Logger.recordOutput("Intake/Setpoint/RollerVoltageSetpoint", setpoint.rollerVoltageSetpoint());
+        Logger.recordOutput("Intake/Setpoint/RollerVelocitySetpointRadiansPerSecond", setpoint.rollerVelocityRadiansPerSecond());
+
         LoggedTracer.record("IntakePeriodic");
     }
 
-    private IntakeState evaluateState() {
-        return switch (goal) {
-            case IDLE -> IntakeState.IDLE;
-            case STOW -> {
-                slam.setAngleDegrees(kStowedPosition.get());
-                yield slam.atTarget() ? IntakeState.STOWED : IntakeState.STOWING;
-            }
-            case DEPLOY -> {
-                slam.setAngleDegrees(kDeployedPosition.get());
-                yield slam.atTarget() ? IntakeState.DEPLOYED : IntakeState.DEPLOYING;
-            }
-            case DEPLOY_HALF -> {
-                slam.setAngleDegrees(kHalfDeployPosition.get());
-                yield slam.atTarget() ? IntakeState.DEPLOYED_HALF : IntakeState.DEPLOYING;
-            }
-            case FEED -> {
-                slam.setAngleDegrees(kFeedPosition.get());
-                yield slam.atTarget() ? IntakeState.FEED : IntakeState.DEPLOYING;
-            }
-            case INTAKE -> IntakeState.INTAKING;
-            case EXHAUST -> IntakeState.EXHAUSTING;
+    private void applySetpoint(IntakeSetpoint setpoint) {
+        if(disabledOverride.getAsBoolean()) {
+            slam.stop();
+            roller.stop();
+
+            return;
         };
+
+        slam.runSetpoint(setpoint.slamAngleDegrees(), setpoint.slamVelocityRadiansPerSecond());
+        roller.setVoltage(setpoint.rollerVoltageSetpoint());
     }
 
-    private void applyOutputs() {
-        switch (state) {
-            case IDLE -> {
-                roller.stop();
-            }
-
-            case STOWING -> {
-                slam.setAngleDegrees(kStowedPosition.get());
-                roller.stop();
-            }
-
-            case STOWED -> {
-                roller.stop();
-            }
-
-            case DEPLOYING -> {
-                double target = goal == IntakeGoal.DEPLOY_HALF ? kHalfDeployPosition.get() : kDeployedPosition.get();
-                slam.setAngleDegrees(target);
-                roller.setVoltage(kRollerVoltage.get());
-            }
-
-            case DEPLOYED, DEPLOYED_HALF -> {
-                roller.setVoltage(kIdleVoltage.get());
-            }
-
-            case FEED -> {
-                roller.setVoltage(kIdleVoltage.get());
-            }
-
-            case INTAKING -> {
-                slam.setAngleDegrees(kDeployedPosition.get());
-                roller.setVoltage(kRollerVoltage.get());
-            }
-
-            case EXHAUSTING -> {
-                slam.setAngleDegrees(kDeployedPosition.get());
-                roller.setVoltage(kExhaustVoltage.get());
-            }
-        }
+    private void setBrakeMode(boolean enabled) {
+        slam.setBrakeMode(enabled);
+        roller.setBrakeMode(enabled);
     }
 
-    public void setGoal(IntakeGoal goal) {
-        this.goal = goal;
+    public void setOverrides(BooleanSupplier coastOverride, BooleanSupplier disabledOverride) {
+        this.coastOverride = coastOverride;
+        this.disabledOverride = disabledOverride;
     }
 
-    public void setBrakeMode(BooleanSupplier enabled) {
-        //slam.setBrakeMode(enabled.getAsBoolean());
-        roller.setBrakeMode(enabled.getAsBoolean());
+    public double getSlamCurrentPositionDegrees() {
+        return slam.getMeasuredAngleDegrees();
     }
 }
