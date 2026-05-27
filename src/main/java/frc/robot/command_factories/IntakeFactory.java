@@ -1,41 +1,89 @@
 package frc.robot.command_factories;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-
+import frc.minolib.math.EqualsUtility;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.intake.Intake.IntakeGoal;
+import frc.robot.constants.IntakeConstants;
+import frc.robot.subsystems.intake.IntakeSetpoint;
 
 public class IntakeFactory {
-    public static Command intakeCommand(RobotContainer robotContainer) {
-        return Commands.startEnd(() -> robotContainer.getIntake().setGoal(IntakeGoal.INTAKE), () -> robotContainer.getIntake().setGoal(IntakeGoal.DEPLOY_HALF));
+    public static Command deployIntakeBlocking(RobotContainer robotContainer) {
+        return Commands.startEnd(
+            () -> robotContainer.getIntake().setSetpoint(IntakeSetpoint.intake()), 
+            () -> {}
+        ).until(() -> EqualsUtility.epsilonEquals(
+            robotContainer.getIntake().getSlamCurrentPositionDegrees(), 
+            robotContainer.getIntake().getSetpoint().slamAngleDegrees(),
+            IntakeConstants.kPivotTolerance.in(Degrees)
+        ));
     }
 
-    public static Command intakeCommandUnblocking(RobotContainer robotContainer) {
-        return Commands.runOnce(() -> robotContainer.getIntake().setGoal(IntakeGoal.INTAKE));
+    public static Command exhaustIntakeBlocking(RobotContainer robotContainer) {
+        return Commands.startEnd(
+            () -> robotContainer.getIntake().setSetpoint(IntakeSetpoint.exhaustDeployed()), 
+            () -> {}
+        ).until(() -> EqualsUtility.epsilonEquals(
+            robotContainer.getIntake().getSlamCurrentPositionDegrees(), 
+            robotContainer.getIntake().getSetpoint().slamAngleDegrees(),
+            IntakeConstants.kPivotTolerance.in(Degrees)
+        ));
     }
 
-    public static Command stowCommand(RobotContainer robotContainer) {
-        return Commands.runOnce(() -> robotContainer.getIntake().setGoal(IntakeGoal.STOW));
+    public static Command exhaustHalfIntakeBlocking(RobotContainer robotContainer) {
+        return Commands.startEnd(
+            () -> robotContainer.getIntake().setSetpoint(IntakeSetpoint.exhaustHalfDeployed()), 
+            () -> {}
+        ).until(() -> EqualsUtility.epsilonEquals(
+            robotContainer.getIntake().getSlamCurrentPositionDegrees(), 
+            robotContainer.getIntake().getSetpoint().slamAngleDegrees(),
+            IntakeConstants.kPivotTolerance.in(Degrees)
+        ));
     }
 
-    public static Command deployCommand(RobotContainer robotContainer) {
-        return Commands.runOnce(() -> robotContainer.getIntake().setGoal(IntakeGoal.DEPLOY));
+    public static Command wallIntakeBlocking(RobotContainer robotContainer) {
+        return Commands.startEnd(
+            () -> robotContainer.getIntake().setSetpoint(IntakeSetpoint.wall()), 
+            () -> {}
+        ).until(() -> EqualsUtility.epsilonEquals(
+            robotContainer.getIntake().getSlamCurrentPositionDegrees(), 
+            robotContainer.getIntake().getSetpoint().slamAngleDegrees(),
+            IntakeConstants.kPivotTolerance.in(Degrees)
+        ));
     }
 
-    public static Command feedCommand(RobotContainer robotContainer) {
-        return Commands.runOnce(() -> robotContainer.getIntake().setGoal(IntakeGoal.FEED));
+    public static Command churnIntakeBlocking(RobotContainer robotContainer) {
+        return Commands.startEnd(
+            () -> robotContainer.getIntake().setSetpoint(IntakeSetpoint.churn()), 
+            () -> {}
+        ).until(() -> EqualsUtility.epsilonEquals(
+            robotContainer.getIntake().getSlamCurrentPositionDegrees(), 
+            robotContainer.getIntake().getSetpoint().slamAngleDegrees(),
+            IntakeConstants.kPivotTolerance.in(Degrees)
+        ));
     }
 
-    public static Command deployHalfCommand(RobotContainer robotContainer) {
-        return Commands.runOnce(() -> robotContainer.getIntake().setGoal(IntakeGoal.DEPLOY_HALF));
+    public static Command slowRetractIntakeBlocking(RobotContainer robotContainer) {
+        return Commands.startEnd(
+            () -> robotContainer.getIntake().setSetpoint(IntakeSetpoint.slowRetract()), 
+            () -> {}
+        ).until(() -> EqualsUtility.epsilonEquals(
+            robotContainer.getIntake().getSlamCurrentPositionDegrees(), 
+            robotContainer.getIntake().getSetpoint().slamAngleDegrees(),
+            IntakeConstants.kPivotTolerance.in(Degrees)
+        ));
     }
 
-    public static Command ejectCommand(RobotContainer robotContainer) {
-        return Commands.startEnd(() -> robotContainer.getIntake().setGoal(IntakeGoal.EXHAUST), () -> robotContainer.getIntake().setGoal(IntakeGoal.IDLE));
-    }
-
-    public static Command idleCommand(RobotContainer robotContainer) {
-        return Commands.runOnce(() -> robotContainer.getIntake().setGoal(IntakeGoal.IDLE));
+    public static Command retractIntakeBlocking(RobotContainer robotContainer) {
+        return Commands.startEnd(
+            () -> robotContainer.getIntake().setSetpoint(IntakeSetpoint.fastRetract()), 
+            () -> {}
+        ).until(() -> EqualsUtility.epsilonEquals(
+            robotContainer.getIntake().getSlamCurrentPositionDegrees(), 
+            robotContainer.getIntake().getSetpoint().slamAngleDegrees(),
+            IntakeConstants.kPivotTolerance.in(Degrees)
+        ));
     }
 }

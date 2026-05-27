@@ -76,4 +76,5 @@ public class IntakeConstants {
     public static final Current kRollerMotorSupplyLimit = Amps.of(45);
 
     public static final double kRollerVelocityFilterTimeConstant = 0.1;
+    public static final Angle kPivotTolerance = Degrees.of(2.5);
 }
