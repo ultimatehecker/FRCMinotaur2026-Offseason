@@ -54,7 +54,7 @@ public class Drivetrain extends SubsystemBase {
         .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
         .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
 
-    private final SwerveRequest.ApplyRobotSpeeds robotVelocityRequest = new SwerveRequest.ApplyRobotSpeeds()
+    public final SwerveRequest.ApplyRobotSpeeds robotVelocityRequest = new SwerveRequest.ApplyRobotSpeeds()
         .withDesaturateWheelSpeeds(true)
         .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
         .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
@@ -128,8 +128,12 @@ public class Drivetrain extends SubsystemBase {
         return startEnd(() -> applyRequest(idleRequest), this::stop).withName("X Lock");
     }
 
-    private void applyRequest(SwerveRequest request) {
+    public void applyRequest(SwerveRequest request) {
         io.setSwerveRequest(request);
+    }
+
+    public void stop() {
+        applyRequest(robotVelocityRequest.withSpeeds(zeroChassisSpeeds));
     }
 
     public void addVisionMeasurement(WeightedPoseEstimate poseEstimate) {
@@ -170,9 +174,5 @@ public class Drivetrain extends SubsystemBase {
             ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(velocityX, velocityY, velocityTheta), robotState.getLatestFieldToRobot().getValue().getRotation()), 
             robotState.getLatestFieldToRobot().getValue().getRotation().plus(skewCompensationFactor)
         );
-    }
-
-    private void stop() {
-        applyRequest(robotVelocityRequest.withSpeeds(zeroChassisSpeeds));
     }
 }
