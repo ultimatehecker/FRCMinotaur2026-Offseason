@@ -44,23 +44,29 @@ public class Drivetrain extends SubsystemBase {
         .withHeadingPID(3.0, 0.0, 0.15) 
         .withDeadband(0.02);
 
-    private final SwerveRequest.FieldCentric teleopRequest = new SwerveRequest.FieldCentric()
+    private final SwerveRequest.FieldCentric teleopRequestFC = new SwerveRequest.FieldCentric()
         .withDesaturateWheelSpeeds(true)
         .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
         .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
 
-    private final SwerveRequest.ApplyRobotSpeeds robotSpeedsRequest = new SwerveRequest.ApplyRobotSpeeds()
+    private final SwerveRequest.RobotCentric teleopRequestRC = new SwerveRequest.RobotCentric()
+        .withDesaturateWheelSpeeds(true)
+        .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+        .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
+
+    private final SwerveRequest.ApplyRobotSpeeds robotVelocityRequest = new SwerveRequest.ApplyRobotSpeeds()
         .withDesaturateWheelSpeeds(true)
         .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
         .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
 
-    private final SwerveRequest.ApplyFieldSpeeds idleRequest = new SwerveRequest.ApplyFieldSpeeds()
-        .withSpeeds(new ChassisSpeeds())
-        .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage);
-
-    private final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake()
+    private final SwerveRequest.SwerveDriveBrake idleRequest = new SwerveRequest.SwerveDriveBrake()
         .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
         .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
+
+    private final ChassisSpeeds zeroChassisSpeeds = new ChassisSpeeds(0, 0, 0);
+
+    private boolean isFieldCentric = true;
+    private boolean fieldCentricPreviousState = false;
 
     public Drivetrain(RobotState robotState, DrivetrainIO io) {
         this.robotState = robotState;
@@ -83,37 +89,43 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Command drive(DoubleSupplier throttleSupplier, DoubleSupplier strafeSupplier, DoubleSupplier rotationSupplier, BooleanSupplier isFieldCentric) {
-        return run(() -> {
+        return runEnd(() -> {
             ChassisSpeeds speeds = calculateSpeedsBasedOnJoystickInputs(throttleSupplier, strafeSupplier, rotationSupplier);
 
-            if (isFieldCentric.getAsBoolean()) {
-                applyRequest(teleopRequest
+            boolean fieldCentricCurrentState = isFieldCentric.getAsBoolean();
+
+            if (fieldCentricCurrentState && !fieldCentricPreviousState) {
+                this.isFieldCentric = !this.isFieldCentric;
+            }
+
+            fieldCentricPreviousState = fieldCentricCurrentState;
+
+            if (this.isFieldCentric) {
+                applyRequest(teleopRequestFC
                     .withVelocityX(speeds.vxMetersPerSecond)
                     .withVelocityY(speeds.vyMetersPerSecond)
-                    .withRotationalRate(speeds.omegaRadiansPerSecond));
+                    .withRotationalRate(speeds.omegaRadiansPerSecond)
+                );
             } else {
-                applyRequest(robotSpeedsRequest.withSpeeds(speeds));
+                applyRequest(teleopRequestRC
+                    .withVelocityX(speeds.vxMetersPerSecond)
+                    .withVelocityY(speeds.vyMetersPerSecond)
+                    .withRotationalRate(speeds.omegaRadiansPerSecond)
+                );
             }
-        }).withName("Standard Teloeop Drive");
+        }, this::stop).withName("Standard Teleop Drive");
     }
 
-    public Command driveFacingAngle(DoubleSupplier velocityXMetersPerSecond, DoubleSupplier velocityYMetersPerSecond, Supplier<Rotation2d> targetHeading) {
-        return run(() -> applyRequest(continuousTracking
-            .withVelocityX(velocityXMetersPerSecond.getAsDouble())
-            .withVelocityY(velocityYMetersPerSecond.getAsDouble())
-            .withTargetDirection(targetHeading.get()))).withName("Drive Continuous Tracking");
-    }
-
-    public Command followRobotRelativeSpeeds(Supplier<ChassisSpeeds> speeds) {
-        return run(() -> applyRequest(robotSpeedsRequest.withSpeeds(speeds.get()))).withName("Follow Robot-Relative Speeds");
+    public Command driveFacingAngle(DoubleSupplier fieldVelocityX, DoubleSupplier fieldVelocityY, Supplier<Rotation2d> targetHeadingSupplier) {
+        return runEnd(() -> applyRequest(continuousTracking
+            .withVelocityX(fieldVelocityX.getAsDouble())
+            .withVelocityY(fieldVelocityY.getAsDouble())
+            .withTargetDirection(targetHeadingSupplier.get())
+        ), this::stop).withName("Drive Facing Angle");
     }
 
     public Command xLock() {
-        return run(() -> applyRequest(brakeRequest)).withName("X Lock");
-    }
-
-    public Command idle() {
-        return run(() -> applyRequest(idleRequest)).withName("Idle");
+        return startEnd(() -> applyRequest(idleRequest), this::stop).withName("X Lock");
     }
 
     private void applyRequest(SwerveRequest request) {
@@ -158,5 +170,9 @@ public class Drivetrain extends SubsystemBase {
             ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(velocityX, velocityY, velocityTheta), robotState.getLatestFieldToRobot().getValue().getRotation()), 
             robotState.getLatestFieldToRobot().getValue().getRotation().plus(skewCompensationFactor)
         );
+    }
+
+    private void stop() {
+        applyRequest(robotVelocityRequest.withSpeeds(zeroChassisSpeeds));
     }
 }
