@@ -16,7 +16,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.minolib.advantagekit.LoggedTracer;
 import frc.minolib.controller.ControllerConstants;
@@ -63,9 +62,6 @@ public class Drivetrain extends SubsystemBase {
         .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
         .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
 
-    private boolean stopped = true;
-    public final Trigger isStopped = new Trigger(() -> stopped).debounce(0.1);
-
     public Drivetrain(RobotState robotState, DrivetrainIO io) {
         this.robotState = robotState;
         this.io = io;
@@ -83,13 +79,6 @@ public class Drivetrain extends SubsystemBase {
         }
 
         Logger.processInputs("Drivetrain", inputs);
-
-        stopped = 
-            MathUtil.isNear(0.0, inputs.Speeds.vxMetersPerSecond, DrivetrainConstants.kStoppedLinearTolerenceMetersPerSecond) &&
-            MathUtil.isNear(0.0, inputs.Speeds.vyMetersPerSecond, DrivetrainConstants.kStoppedLinearTolerenceMetersPerSecond) &&
-            MathUtil.isNear(0.0, inputs.Speeds.omegaRadiansPerSecond, DrivetrainConstants.kStoppedRotationalTolerenceRadiansPerSecond);
-
-        Logger.recordOutput("Drivetrain/IsStopped?", stopped);
         LoggedTracer.record("DrivetrainPeriodic");
     }
 
