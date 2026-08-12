@@ -7,7 +7,9 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotContainer;
 
 public class SimulatedRobotState {
+    @SuppressWarnings("unused")
     private SwerveDriveSimulation simulatedDrivetrain;
+    
     private final RobotContainer robotContainer;
     private double lastTimestamp = 0.0;
 
