@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 import frc.minolib.localization.WeightedPoseEstimate;
+import frc.robot.oi.DriverController;
+import frc.robot.oi.DriverControllerXbox;
 import frc.robot.simulation.SimulatedRobotState;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainIOHardware;
@@ -28,6 +30,8 @@ public class RobotContainer {
   private SimulatedRobotState simulatedRobotState;
 
   private Drivetrain drivetrain;
+
+  private DriverController controller;
 
   private RobotState buildRobotState() {
     return new RobotState(visionEstimateConsumer);
@@ -74,10 +78,16 @@ public class RobotContainer {
 
     drivetrain = buildDrivetrain();
 
+    controller = new DriverController(
+      new DriverControllerXbox()
+    );
+
     configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+    drivetrain.setDefaultCommand(drivetrain.drive(controller::getThrottle, controller::getStrafe, controller::getRotation, controller::toggleDrivingMode));
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
