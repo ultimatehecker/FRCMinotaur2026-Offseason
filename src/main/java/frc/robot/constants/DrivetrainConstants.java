@@ -15,6 +15,7 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 
 import frc.minolib.swerve.CTRESwerveDrivetrainConstants;
 import frc.minolib.swerve.SwerveModuleType;
+import frc.robot.Robot;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 
 public class DrivetrainConstants {
@@ -70,6 +71,18 @@ public class DrivetrainConstants {
     public static final MomentOfInertia kRobotMOI = MomentOfInertia.ofBaseUnits(6.883, KilogramSquareMeters);
     public static final MomentOfInertia kSwerveModuleSteerMOI = MomentOfInertia.ofBaseUnits(0.02, KilogramSquareMeters);
     public static final double kWheelCOF = 1.0;
+
+    public static final double kDriveHolonomickP = Robot.isSimulation() ? 5.0 : 0.0;
+    public static final double kDriveHolonomickI = Robot.isSimulation() ? 0.0 : 0.0;
+    public static final double kDriveHolonomickD = Robot.isSimulation() ? 0.0 : 0.0;
+    public static final double kDriveHolonomicMaxVelocity = Robot.isSimulation() ? kMaximumLinearVelocityMetersPerSecond : 0.0;
+    public static final double kDriveHolonomicMaxAcceleration = Robot.isSimulation() ? kMaximumLinearAccelerationMetersPerSecond2 : 0.0;
+
+    public static final double kRotationalHolonomickP = Robot.isSimulation() ? 5.0 : 0.0;
+    public static final double kRotationalHolonomickI = Robot.isSimulation() ? 0.0 : 0.0;
+    public static final double kRotationalHolonomickD = Robot.isSimulation() ? 0.0 : 0.0;
+    public static final double kRotationalHolonomicMaxVelocity = Robot.isSimulation() ? kMaximumRotationalVelocityRadiansPerSecond : 0.0;
+    public static final double kRotationalHolonomicMaxAcceleration = Robot.isSimulation() ? kMaximumRotationalAccelerationRadiansPerSecond2 : 0.0;
 
     public static final DriveTrainSimulationConfig kMapleSimConfiguration = DriveTrainSimulationConfig.Default()
         .withCustomModuleTranslations(kModuleTranslations)
