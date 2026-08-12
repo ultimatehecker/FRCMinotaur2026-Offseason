@@ -9,8 +9,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 
 import frc.minolib.math.Bounds;
+import frc.robot.Constants;
 import frc.robot.constants.FieldConstants;
-import frc.robot.constants.GlobalConstants;
 
 public class AllianceFlipUtility {
     public static double applyX(double x) {
@@ -56,7 +56,7 @@ public class AllianceFlipUtility {
     }
 
     public static boolean shouldFlip() {
-        return !GlobalConstants.disableHAL
+        return !Constants.disableHAL
             && DriverStation.getAlliance().isPresent()
             && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
     }

@@ -9,7 +9,6 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.minolib.io.CANBusInputsAutoLogged;
-import frc.robot.constants.GlobalConstants;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -53,12 +52,8 @@ public class MinoCANBus {
 
   private final CANBusInputsAutoLogged inputs = new CANBusInputsAutoLogged();
 
-  private final Debouncer canivoreConnectedDebouncer = new Debouncer(GlobalConstants.kCANivoreTimeThreshold, DebounceType.kRising);
+  private final Debouncer canivoreConnectedDebouncer = new Debouncer(0.5, DebounceType.kRising); // TODO: Change this to use a LoggedTunableNumber
   private final Alert canivoreErrorAlert = new Alert("CANivore error detected, robot may not be controllable.", AlertType.kError);
-
-  public MinoCANBus() {
-    this("rio");
-  }
 
   public MinoCANBus(final String canbusName) {
     this.canbusName = canbusName;

@@ -12,7 +12,7 @@ import java.util.Map;
 import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
-import frc.robot.constants.GlobalConstants;
+import frc.robot.Constants;
 
 /** Class for logging current, power, and energy usage. */
 public class BatteryLogger {
@@ -33,7 +33,7 @@ public class BatteryLogger {
         for (double amp : amps) totalAmps += Math.abs(amp);
 
         double power = totalAmps * batteryVoltage;
-        double energy = power * GlobalConstants.kLoopPeriodSeconds;
+        double energy = power * Constants.kLoopPeriodSeconds;
 
         totalCurrent += totalAmps;
         totalPower += power;

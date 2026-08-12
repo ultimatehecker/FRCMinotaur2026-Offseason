@@ -3,7 +3,7 @@ package frc.minolib.swerve;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 
-import frc.robot.constants.GlobalConstants;
+import frc.robot.Constants;
 
 public class CTRESwerveDrivetrainConstants {
     SwerveDrivetrainConstants driveTrainConstants;
@@ -12,7 +12,7 @@ public class CTRESwerveDrivetrainConstants {
     public CTRESwerveDrivetrainConstants(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
         this.driveTrainConstants = driveTrainConstants;
 
-        if (GlobalConstants.kUseMapleSim) {
+        if (Constants.kUseMapleSim) {
             this.moduleConstants = MapleSimulatedSwerveDrivetrain.regulateModuleConstantsForSimulation(modules);
         } else {
             this.moduleConstants = modules;

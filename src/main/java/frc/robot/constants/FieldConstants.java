@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
+import frc.robot.Constants;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -249,7 +250,7 @@ public class FieldConstants {
                 synchronized (this) {
                     if (layout == null) {
                         try {
-                            Path p = GlobalConstants.disableHAL 
+                            Path p = Constants.disableHAL 
                                 ? Path.of("src", "main", "deploy", "apriltags", fieldType.getJsonFolder(), name + ".json") 
                                 : Path.of(Filesystem.getDeployDirectory().getPath(), "apriltags", fieldType.getJsonFolder(), name + ".json");
 

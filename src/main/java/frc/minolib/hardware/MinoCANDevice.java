@@ -2,7 +2,7 @@ package frc.minolib.hardware;
 
 import com.ctre.phoenix6.CANBus;
 
-import frc.robot.constants.GlobalConstants;
+import frc.robot.Constants;
 
 /**
  * Represents a CAN device identifier with bus name and device number. Used to uniquely identify and
@@ -35,7 +35,7 @@ public class MinoCANDevice {
      * @param deviceNumber The device's CAN ID number
      */
     public MinoCANDevice(final int deviceNumber) {
-        this(deviceNumber, GlobalConstants.kRioBus);
+        this(deviceNumber, Constants.kRioBus);
     }
 
     public void newDeviceID(final int deviceNumber) {
