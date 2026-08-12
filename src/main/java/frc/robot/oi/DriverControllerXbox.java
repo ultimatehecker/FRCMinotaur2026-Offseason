@@ -2,7 +2,7 @@ package frc.robot.oi;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
+import frc.minolib.controller.CommandSimulatedXboxController;
 import frc.minolib.controller.ControllerConstants;
 import frc.robot.Robot;
 
@@ -11,7 +11,7 @@ public class DriverControllerXbox implements DriverControllerIO {
 
     public DriverControllerXbox() {
         if (Robot.isSimulation()) {
-            controller = new CommandXboxController(ControllerConstants.kDriverControllerPort); //TODO: Change to simulated controller at a later date
+            controller = new CommandSimulatedXboxController(ControllerConstants.kDriverControllerPort); //TODO: Change to simulated controller at a later date
         } else {
             controller = new CommandXboxController(ControllerConstants.kDriverControllerPort);
         }
