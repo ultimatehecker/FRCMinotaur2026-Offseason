@@ -8,8 +8,7 @@ import java.util.function.Consumer;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-
-import frc.minolib.localization.WeightedPoseEstimate;
+import frc.minolib.vision.FieldPoseEstimate;
 import frc.robot.oi.DriverController;
 import frc.robot.oi.DriverControllerXbox;
 import frc.robot.simulation.SimulatedRobotState;
@@ -19,9 +18,9 @@ import frc.robot.subsystems.drivetrain.DrivetrainIOSimulation;
 import frc.robot.subsystems.drivetrain.TunerConstants;
 
 public class RobotContainer {
-  private final Consumer<WeightedPoseEstimate> visionEstimateConsumer = new Consumer<WeightedPoseEstimate>() {
+  private final Consumer<FieldPoseEstimate> visionEstimateConsumer = new Consumer<FieldPoseEstimate>() {
     @Override
-    public void accept(WeightedPoseEstimate estimate) {
+    public void accept(FieldPoseEstimate estimate) {
         drivetrain.addVisionMeasurement(estimate);
     }
   };

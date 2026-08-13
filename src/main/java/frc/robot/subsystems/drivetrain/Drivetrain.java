@@ -19,8 +19,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.minolib.advantagekit.LoggedTracer;
 import frc.minolib.controller.ControllerConstants;
-import frc.minolib.localization.WeightedPoseEstimate;
 import frc.minolib.swerve.MapleSimulatedSwerveDrivetrain;
+import frc.minolib.vision.FieldPoseEstimate;
 import frc.robot.RobotState;
 import frc.robot.constants.DrivetrainConstants;
 
@@ -136,7 +136,7 @@ public class Drivetrain extends SubsystemBase {
         applyRequest(robotVelocityRequest.withSpeeds(zeroChassisSpeeds));
     }
 
-    public void addVisionMeasurement(WeightedPoseEstimate poseEstimate) {
+    public void addVisionMeasurement(FieldPoseEstimate poseEstimate) {
         io.addVisionMeasurement(poseEstimate);
     }
 
