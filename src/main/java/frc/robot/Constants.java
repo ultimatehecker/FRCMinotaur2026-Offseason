@@ -13,6 +13,12 @@ public class Constants {
     public static final MinoCANBus kRioBus = new MinoCANBus("rio");
     public static final MinoCANBus kCANivoreBus = new MinoCANBus("*");
 
+    public static final double kLowBatteryVoltage = 10.0;
+    public static final double kLowBatteryDisabledTime = 1.5;
+    
+    public static final double kRioCANErrorTimeThreshold = 0.5;
+    public static final double kCANivoreErrorTimeThreshold = 0.5;
+
     private static RobotType kRobotType = RobotType.SIMBOT;
     public static final boolean kTuningMode = true;
     public static final boolean kUseMapleSim = true;
