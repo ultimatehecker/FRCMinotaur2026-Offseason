@@ -41,7 +41,7 @@ public interface RollerSystemIO {
         public boolean brakeModeEnabled = true;
     }
 
-    default void updateInputs(RollerSystemIOInputs inputs) {}
+    public default void updateInputs(RollerSystemIOInputs inputs) {}
 
-    default void applyOutputs(RollerSystemIOOutputs outputs) {}
+    public default void applyOutputs(RollerSystemIOOutputs outputs) {}
 }
