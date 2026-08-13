@@ -1,4 +1,4 @@
-package frc.minolib.localization;
+package frc.minolib.vision;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -6,7 +6,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
 /** Represents a robot pose estimate from vision with associated uncertainty and metadata. */
-public class WeightedPoseEstimate {
+public class FieldPoseEstimate {
 
     private final Pose2d visionRobotPoseMeters;
     private final double timestampSeconds;
@@ -22,7 +22,7 @@ public class WeightedPoseEstimate {
      * @param numTags Number of AprilTags used in this pose estimate
      */
     
-    public WeightedPoseEstimate(Pose2d visionRobotPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs, int numTags) {
+    public FieldPoseEstimate(Pose2d visionRobotPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs, int numTags) {
         this.visionRobotPoseMeters = visionRobotPoseMeters;
         this.timestampSeconds = timestampSeconds;
         this.visionMeasurementStdDevs = visionMeasurementStdDevs;

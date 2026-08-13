@@ -1,4 +1,4 @@
-package frc.minolib.wpilib;
+package frc.minolib.utilities;
 
 import org.littletonrobotics.junction.Logger;
 
