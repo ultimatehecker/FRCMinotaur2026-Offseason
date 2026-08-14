@@ -2,7 +2,7 @@ package frc.robot.constants;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-
+import frc.minolib.advantagekit.LoggedTunableNumber;
 import frc.minolib.hardware.MinoCANDevice;
 import frc.robot.Constants;
 
@@ -11,13 +11,12 @@ public class IntakeConstants {
         public static final MinoCANDevice kKrakenX60 = new MinoCANDevice(14, Constants.kRioBus);
         public static final MinoCANDevice kCANCoder = new MinoCANDevice(14, Constants.kRioBus);
 
-        public static final double kP = 10.0;
-        public static final double kI = 0.0;
-        public static final double kD = 0.0;
-        public static final double kS = 0.0;
-        public static final double kV = 1.5;
-        public static final double kG = 0.0;
-        public static final double kA = 0.0;
+        public static final LoggedTunableNumber kP = new LoggedTunableNumber("Intake/Slam/kP", 10.0);
+        public static final LoggedTunableNumber kD = new LoggedTunableNumber("Intake/Slam/kD", 0.0);
+        public static final LoggedTunableNumber kS = new LoggedTunableNumber("Intake/Slam/kS", 0.0);
+        public static final LoggedTunableNumber kG = new LoggedTunableNumber("Intake/Slam/kG", 0.0);
+        public static final LoggedTunableNumber kV = new LoggedTunableNumber("Intake/Slam/kV", 0.0);
+        public static final LoggedTunableNumber kA = new LoggedTunableNumber("Intake/Slam/kA", 0.0);
 
         public static final boolean kMotorInverted = false;
         public static final double kMotorReduction = (25.0 / 1) * (32.0 / 16.0);
@@ -31,12 +30,11 @@ public class IntakeConstants {
     public class Roller {
         public static final MinoCANDevice kFalcon500 = new MinoCANDevice(15, Constants.kRioBus);
 
-        public static final double kP = 10.0;
-        public static final double kI = 0.0;
-        public static final double kD = 0.0;
-        public static final double kS = 0.0;
-        public static final double kV = 1.5;
-        public static final double kA = 0.0;
+        public static final LoggedTunableNumber kP = new LoggedTunableNumber("Intake/Roller/kP", 10.0);
+        public static final LoggedTunableNumber kD = new LoggedTunableNumber("Intake/Roller/kD", 0.0);
+        public static final LoggedTunableNumber kS = new LoggedTunableNumber("Intake/Roller/kS", 0.0);
+        public static final LoggedTunableNumber kV = new LoggedTunableNumber("Intake/Roller/kV", 0.0);
+        public static final LoggedTunableNumber kA = new LoggedTunableNumber("Intake/Roller/kA", 0.0);
 
         public static final boolean kMotorInverted = true;
         public static final double kMotorReduction = (24.0 / 12.0);
