@@ -181,8 +181,8 @@ public class SlamIOHardware implements SlamIO {
             case BRAKE -> motor.setControl(brakeRequest);
             case COAST -> motor.setControl(coastRequest);
             case VOLTAGE_CONTROL -> motor.setControl(voltageRequest.withOutput(outputs.appliedVoltage));
-            case CLOSED_LOOP_SENSORED -> motor.setControl(positionRequest.withPosition(outputs.position));
-            case CLOSED_LOOP_UNSENSORED -> motor.setControl(positionRequest.withPosition(outputs.position));
+            case CLOSED_LOOP_SENSORED -> motor.setControl(positionRequest.withPosition(Units.radiansToRotations(outputs.position)));
+            case CLOSED_LOOP_UNSENSORED -> motor.setControl(positionRequest.withPosition(Units.radiansToRotations(outputs.position)));
         }
     }
 }
