@@ -8,6 +8,7 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 
+import frc.minolib.advantagekit.LoggedTracer;
 import frc.robot.Robot;
 import frc.robot.subsystems.rollers.RollerSystemIO.RollerSystemIOMode;
 import frc.robot.subsystems.rollers.RollerSystemIO.RollerSystemIOOutputs;
@@ -73,10 +74,9 @@ public class RollerSystem {
                 outputs.mode = RollerSystemIOMode.COAST;
             }
         }
-    }
 
-    public void periodicAfterScheduler() {
         io.applyOutputs(outputs);
+        LoggedTracer.record(name + "Periodic");
     }
 
     public void runOpenLoop(double volts) {
