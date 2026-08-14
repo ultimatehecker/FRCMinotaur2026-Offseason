@@ -2,16 +2,23 @@ package frc.robot.subsystems.intake.slam;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix6.signals.MagnetHealthValue;
+
 public interface SlamIO {
     @AutoLog
     public static class SlamIOInputs {
-        public boolean connected;
+        public boolean motorConnected;
         public double positionRadians;
         public double velocityRadiansPerSecond;
         public double appliedVoltage;
         public double supplyCurrentAmperes;
         public double torqueCurrentAmperes;
         public double temperatureCelsius;
+        public boolean temperatureFault;
+
+        public boolean absoluteEncoderConnected;
+        public double absoluteEncoderPositionRadians;
+        public MagnetHealthValue absoluteEncoderMagnetHealth;
     }
 
     public enum SlamIOOutputMode {
