@@ -1,6 +1,8 @@
 package frc.robot.constants;
 
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
+
 import frc.minolib.hardware.MinoCANDevice;
 import frc.robot.Constants;
 
@@ -41,5 +43,14 @@ public class IntakeConstants {
         public static final double kMotorStatorCurrentLimit = 120;
         public static final double kMotorSupplyCurrentLimit = 60;
         public static final DCMotor kSimulatedGearbox = DCMotor.getFalcon500Foc(1);
+
+        public static final double kMOI = 0.5 * (0.5) * (Math.pow(Units.inchesToMeters(1.875), 2) + Math.pow(Units.inchesToMeters(2), 2));
     }
+
+    public static final double kLength = Units.inchesToMeters(14.0);
+    public static final double kMassKilograms = 5.89;
+    public static final double kMOI = 0.02; // Will calculate later
+
+    public static final double kMinimumPosition = Units.degreesToRadians(59.6);
+    public static final double kMaximumPosition = Units.degreesToRadians(187.4);
 }
