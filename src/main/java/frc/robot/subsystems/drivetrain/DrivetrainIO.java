@@ -7,8 +7,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-
-import frc.minolib.localization.WeightedPoseEstimate;
+import frc.minolib.vision.FieldPoseEstimate;
 
 public interface DrivetrainIO {
     @AutoLog
@@ -67,5 +66,5 @@ public interface DrivetrainIO {
     /** Resets the drivetrain rotation to a specific rotation */
     public default void resetToParameterizedRotation(Rotation2d rotation) {}
 
-    public void addVisionMeasurement(WeightedPoseEstimate poseEstimate);
+    public void addVisionMeasurement(FieldPoseEstimate poseEstimate);
 }

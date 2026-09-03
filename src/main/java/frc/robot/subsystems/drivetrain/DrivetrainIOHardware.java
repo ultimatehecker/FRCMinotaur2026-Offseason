@@ -26,10 +26,9 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-
-import frc.minolib.localization.WeightedPoseEstimate;
-import frc.minolib.phoenix.PhoenixUtility;
-import frc.minolib.wpilib.RobotTime;
+import frc.minolib.utilities.PhoenixUtility;
+import frc.minolib.utilities.RobotTime;
+import frc.minolib.vision.FieldPoseEstimate;
 import frc.robot.RobotState;
 
 public class DrivetrainIOHardware extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> implements DrivetrainIO {
@@ -222,7 +221,7 @@ public class DrivetrainIOHardware extends SwerveDrivetrain<TalonFX, TalonFX, CAN
     }
 
     @Override
-    public void addVisionMeasurement(WeightedPoseEstimate poseEstimate) {
+    public void addVisionMeasurement(FieldPoseEstimate poseEstimate) {
         this.addVisionMeasurement(poseEstimate.getVisionRobotPoseMeters(), poseEstimate.getTimestampSeconds(), poseEstimate.getVisionMeasurementStdDevs());
     }
 }

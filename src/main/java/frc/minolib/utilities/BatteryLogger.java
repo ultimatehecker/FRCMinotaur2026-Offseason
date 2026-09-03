@@ -61,7 +61,7 @@ public class BatteryLogger {
         }
     }
 
-    public void periodicAfterScheduler() {
+    public void periodic() {
         reportCurrentUsage("Controls/roboRIO", rioCurrent);
         reportCurrentUsage("Controls/CANcoders", 0.05 * 4);
         reportCurrentUsage("Controls/Pigeon", 0.04);

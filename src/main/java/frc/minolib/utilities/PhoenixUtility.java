@@ -1,4 +1,4 @@
-package frc.minolib.phoenix;
+package frc.minolib.utilities;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
@@ -33,7 +33,7 @@ public class PhoenixUtility {
   private static Alert canivoreSignalsAlert = new Alert("", Alert.AlertType.kError);
   private static Alert rioSignalsAlert = new Alert("", Alert.AlertType.kError);
 
-  public static void simpleTryUntilOk(int maxAttempts, Supplier<StatusCode> command) {
+  public static void tryUntilOk(int maxAttempts, Supplier<StatusCode> command) {
     for (int i = 0; i < maxAttempts; i++) {
       var error = command.get();
       if (error.isOK()) break;
