@@ -106,16 +106,22 @@ public class Slam {
     }
 
     @AutoLogOutput(key = "Intake/Slam/MeasuredAngleRadians")
-    public double getMeasuredAngleRad() {
+    public double getMeasuredAngleRadians() {
         return inputs.positionRadians + slamOffset;
     }
 
     @AutoLogOutput
     public boolean atGoal() {
-        return DriverStation.isEnabled() && zeroed && Math.abs(getMeasuredAngleRad() - goalAngle) <= kToleranceRadians.get();
+        return DriverStation.isEnabled() && zeroed && Math.abs(getMeasuredAngleRadians() - goalAngle) <= kToleranceRadians.get();
     }
 
-    private void zero() {
+
+    public void zeroMaxAngle() {
+        slamOffset = IntakeConstants.kMaximumPosition - inputs.positionRadians;
+        zeroed = true;
+    }
+
+    private void zeroMinAngle() {
         slamOffset = IntakeConstants.kMinimumPosition - inputs.positionRadians;
         zeroed = true;
     }
@@ -128,7 +134,7 @@ public class Slam {
             Commands.waitSeconds(1.0).andThen(
                 Commands.waitUntil(() -> Math.abs(inputs.velocityRadiansPerSecond) <= kHomingVelocityThreshold.get())
             )
-        ).andThen(this::zero);
+        ).andThen(this::zeroMinAngle);
     }
 
     public double getVelocity() {
