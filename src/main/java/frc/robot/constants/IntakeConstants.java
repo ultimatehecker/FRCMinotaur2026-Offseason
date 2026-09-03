@@ -2,6 +2,7 @@ package frc.robot.constants;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+
 import frc.minolib.advantagekit.LoggedTunableNumber;
 import frc.minolib.hardware.MinoCANDevice;
 import frc.robot.Constants;
@@ -51,4 +52,7 @@ public class IntakeConstants {
 
     public static final double kMinimumPosition = Units.degreesToRadians(59.6);
     public static final double kMaximumPosition = Units.degreesToRadians(187.4);
+
+    public static final LoggedTunableNumber kIntakeVoltage = new LoggedTunableNumber("Intake/Roller/IntakeVolts", 13.0);
+    public static final LoggedTunableNumber kOuttakeVoltage = new LoggedTunableNumber("Intake/Roller/OuttakeVolts", -6.0);
 }

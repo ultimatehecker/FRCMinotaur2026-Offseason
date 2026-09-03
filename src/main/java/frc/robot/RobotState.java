@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -281,5 +282,15 @@ public class RobotState {
         Logger.recordOutput("RobotState/MeasuredChassisSpeedFieldFrame", getLatestMeasuredFieldRelativeChassisSpeeds());
         Logger.recordOutput("RobotState/MeasuredChassisSpeedRobotFrame", getLatestMeasuredRobotRelativeChassisSpeeds());
         Logger.recordOutput("RobotState/FusedChassisSpeedFieldFrame", getLatestFusedFieldRelativeChassisSpeeds());
+    }
+
+    private final ConcurrentTimeInterpolatableBuffer<Double> slamPosition = ConcurrentTimeInterpolatableBuffer.createDoubleBuffer(Constants.kLoopBackTimeSeconds);
+    private final ConcurrentTimeInterpolatableBuffer<Double> slamVelocity = ConcurrentTimeInterpolatableBuffer.createDoubleBuffer(Constants.kLoopBackTimeSeconds);
+    private final ConcurrentTimeInterpolatableBuffer<Double> intakeRollerVelocity = ConcurrentTimeInterpolatableBuffer.createDoubleBuffer(Constants.kLoopBackTimeSeconds);
+
+    public void addIntakeMotionMeasurements(double timestamp, Rotation2d currentSlamPosition, double currentSlamVelocity, double currentRollerVelocity) {
+        slamPosition.addSample(timestamp, currentSlamPosition.getRadians());
+        slamVelocity.addSample(timestamp, currentSlamVelocity);
+        intakeRollerVelocity.addSample(timestamp, currentRollerVelocity);
     }
 }
