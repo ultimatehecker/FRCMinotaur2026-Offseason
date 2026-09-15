@@ -7,9 +7,9 @@ import frc.minolib.hardware.MinoCANDevice;
 import frc.robot.Constants;
 
 public class FloorConstants {
-    private static LoggedTunableNumber kShootingVoltage = new LoggedTunableNumber("Floor/FeedingVoltage", 12.0);
-    private static LoggedTunableNumber kFeedingVoltage = new LoggedTunableNumber("Floor/FeedingVoltage", 8.0);
-    private static LoggedTunableNumber kExhaustVoltage = new LoggedTunableNumber("Floor/ExhaustVoltage", -8.0);
+    public static LoggedTunableNumber kShootingVoltage = new LoggedTunableNumber("Floor/FeedingVoltage", 12.0);
+    public static LoggedTunableNumber kFeedingVoltage = new LoggedTunableNumber("Floor/FeedingVoltage", 8.0);
+    public static LoggedTunableNumber kExhaustVoltage = new LoggedTunableNumber("Floor/ExhaustVoltage", -8.0);
 
     public static final MinoCANDevice kLeftKrakenX44 = new MinoCANDevice(16, Constants.kRioBus);
     public static final MinoCANDevice kRightKrakenX44 = new MinoCANDevice(17, Constants.kRioBus);
